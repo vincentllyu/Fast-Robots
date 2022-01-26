@@ -1,6 +1,9 @@
-## Introduction
+## About Me
 
 Welcome to my webpage for the Fast Robot project. I'm Vincent Lu, an ECE MEng student at Cornell University. Though now I'm in the filed of Software Engineering, I have a passion for building robots and finished a minor in Robotics while getting my Bachelor's degree.
+
+I like to play badminton, snowboarding, and CSGO in my free time. 
+## 
 
 You can use the [editor on GitHub](https://github.com/vincentllyu/Fast-Robots/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
 
