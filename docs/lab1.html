@@ -24,6 +24,13 @@
         .sidebar{
             width: 250px!important;
         }
+        pre code {
+            background-color: #eee;
+            border: 1px solid #999;
+            display: block;
+            padding: 20px;
+            text-align: l;
+        }
     </style>
 
 </head>
@@ -39,7 +46,7 @@
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
+                    <i class="fas fa-robot"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">Fast Robots</sup></div>
             </a>
@@ -50,7 +57,7 @@
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
                 <a class="nav-link" href="index.html">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <i class="fab fa-accessible-icon"></i>
                     <span>About Me</span></a>
             </li>
 
@@ -62,7 +69,7 @@
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-cog"></i>
+                    <i class="fas fa-biohazard"></i>
                     <span>Labs</span>
                 </a>
                 <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
@@ -87,9 +94,269 @@
         </ul>
         <!-- End of Sidebar -->
         <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
-            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px">
-                Welcome 
-            </p>
+            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
+                <b style="font-size: 26px;">Lab 1 Report</b>
+
+                This lab is for us to get familiar with the Artemis board, and is pretty straight forward, I just followed hand-out's instructions and all the code were given.
+
+                <b style="font-size: 20px;">Step 3 Blink it up</b>
+                Pretty straight forward LED blinking, I've set the delay to 400 ms, so the frequency is 2.5 Hz. See demo in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/QUdxrSjuDOU" title="Step 3 Blink it up" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                <b style="font-size: 20px;">Step 4 Serial</b>
+                This part is to setup a serial write and read. So I can write to and read from the board via serial port. See demo in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/j3QM9jcuaYU" title="Step 4 Serial" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>            
+
+                <b style="font-size: 20px;">Step 5 Temp Sensor</b>
+                There is a temperature sensor on board. I used a hair dryer to produce some heat so we can see a greater rise in temperature readings. See demo in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/XHNsO-zLPqE" title="Step 5 Temp Sensor" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                <b style="font-size: 20px;">Step 6 PDM</b>
+                From reading the code, this step is to find out the frequency from the loudest audio source using Fast Fourier Transform, using the on board microphone. See demo in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/CUi7AsVySnI" title="Step 6 Temp PDM" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                <b style="font-size: 20px;">Step 7 Blink when Whistle</b>
+                I have attached my code below, and marked where I have edited to the original PDM code to achieve blink when whistle.
+                I have set the blink trigger frequency to between 1100 Hz and 1700 Hz. Set a flag to see if in every loop, the loudest frequency is within that range. And I slowed down every loop to sample the microphone every 10 ms. Results as shown in the video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/JHfq4WvwyUE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                 </p>
+            <pre style="margin-left: 20px;">
+                <code>
+/* Author: Nathan Seidle
+Created: July 24, 2019
+
+This example demonstrates how to use the pulse density microphone (PDM) on Artemis boards.
+This library and example are heavily based on the Apollo3 pdm_fft example.
+*/
+
+/* 
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
+*/
+
+//Global variables needed for PDM library
+#define pdmDataBufferSize 4096 //Default is array of 4096 * 32bit
+uint16_t pdmDataBuffer[pdmDataBufferSize];
+
+//Global variables needed for the FFT in this sketch
+float g_fPDMTimeDomain[pdmDataBufferSize * 2];
+float g_fPDMFrequencyDomain[pdmDataBufferSize * 2];
+float g_fPDMMagnitudes[pdmDataBufferSize * 2];
+uint32_t sampleFreq;
+
+<span style="color:red;">int whistleUpper = 1700;
+int whistleLower = 1100;
+boolean whistleFlag = 0;
+int blinkCounter = 0;
+int blinkPeriod = 20;</span>
+
+//Enable these defines for additional debug printing
+#define PRINT_PDM_DATA 0
+#define PRINT_FFT_DATA 0
+
+#include <PDM.h> //Include PDM library included with the Aruino_Apollo3 core
+AP3_PDM myPDM;   //Create instance of PDM class
+
+//Math library needed for FFT
+#include <arm_math.h>
+
+void setup()
+{
+  Serial.begin(115200);
+  Serial.println("SparkFun PDM Example");
+
+  if (myPDM.begin() == false) // Turn on PDM with default settings, start interrupts
+  {
+    Serial.println("PDM Init failed. Are you sure these pins are PDM capable?");
+    while (1)
+      ;
+  }
+  Serial.println("PDM Initialized");
+
+  printPDMConfig();
+  <span style="color:red;">pinMode(LED_BUILTIN, OUTPUT)</span>;
+}
+
+void loop()
+{
+    <span style="color:red;">delay(10)</span>;
+  if (myPDM.available())
+  {
+    myPDM.getData(pdmDataBuffer, pdmDataBufferSize);
+
+    <span style="color:red;">if(printLoudest()){
+      blinkCounter += 1;
+      if (blinkCounter < blinkPeriod/2){
+        digitalWrite(LED_BUILTIN, HIGH);
+      }
+      else if (blinkCounter < blinkPeriod){
+        digitalWrite(LED_BUILTIN, LOW);
+      }
+      else{
+        blinkCounter = 0;
+        digitalWrite(LED_BUILTIN, LOW);
+      }
+    }
+    else{
+      digitalWrite(LED_BUILTIN, LOW);
+    }</span>
+  }
+
+  // Go to Deep Sleep until the PDM ISR or other ISR wakes us.
+  am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_DEEP);
+}
+
+//*****************************************************************************
+//
+// Analyze and print frequency data.
+//
+//*****************************************************************************
+<span style="color:red;">boolean</span> printLoudest(void)
+{
+  float fMaxValue;
+  uint32_t ui32MaxIndex;
+  int16_t *pi16PDMData = (int16_t *)pdmDataBuffer;
+  uint32_t ui32LoudestFrequency;
+
+  //
+  // Convert the PDM samples to floats, and arrange them in the format
+  // required by the FFT function.
+  //
+  for (uint32_t i = 0; i < pdmDataBufferSize; i++)
+  {
+    if (PRINT_PDM_DATA)
+    {
+      Serial.printf("%d\n", pi16PDMData[i]);
+    }
+
+    g_fPDMTimeDomain[2 * i] = pi16PDMData[i] / 1.0;
+    g_fPDMTimeDomain[2 * i + 1] = 0.0;
+  }
+
+  if (PRINT_PDM_DATA)
+  {
+    Serial.printf("END\n");
+  }
+
+  //
+  // Perform the FFT.
+  //
+  arm_cfft_radix4_instance_f32 S;
+  arm_cfft_radix4_init_f32(&S, pdmDataBufferSize, 0, 1);
+  arm_cfft_radix4_f32(&S, g_fPDMTimeDomain);
+  arm_cmplx_mag_f32(g_fPDMTimeDomain, g_fPDMMagnitudes, pdmDataBufferSize);
+
+  if (PRINT_FFT_DATA)
+  {
+    for (uint32_t i = 0; i < pdmDataBufferSize / 2; i++)
+    {
+      Serial.printf("%f\n", g_fPDMMagnitudes[i]);
+    }
+
+    Serial.printf("END\n");
+  }
+
+  //
+  // Find the frequency bin with the largest magnitude.
+  //
+  arm_max_f32(g_fPDMMagnitudes, pdmDataBufferSize / 2, &fMaxValue, &ui32MaxIndex);
+
+  ui32LoudestFrequency = (sampleFreq * ui32MaxIndex) / pdmDataBufferSize;
+
+  if (PRINT_FFT_DATA)
+  {
+    Serial.printf("Loudest frequency bin: %d\n", ui32MaxIndex);
+  }
+
+  Serial.printf("Loudest frequency: %d         \n", ui32LoudestFrequency);
+
+  <span style="color:red;">
+  if (ui32LoudestFrequency > whistleLower && ui32LoudestFrequency < whistleUpper){
+    return 1;
+  }
+  return 0;</span>
+}
+
+//*****************************************************************************
+//
+// Print PDM configuration data.
+//
+//*****************************************************************************
+void printPDMConfig(void)
+{
+  uint32_t PDMClk;
+  uint32_t MClkDiv;
+  float frequencyUnits;
+
+  //
+  // Read the config structure to figure out what our internal clock is set
+  // to.
+  //
+  switch (myPDM.getClockDivider())
+  {
+  case AM_HAL_PDM_MCLKDIV_4:
+    MClkDiv = 4;
+    break;
+  case AM_HAL_PDM_MCLKDIV_3:
+    MClkDiv = 3;
+    break;
+  case AM_HAL_PDM_MCLKDIV_2:
+    MClkDiv = 2;
+    break;
+  case AM_HAL_PDM_MCLKDIV_1:
+    MClkDiv = 1;
+    break;
+
+  default:
+    MClkDiv = 0;
+  }
+
+  switch (myPDM.getClockSpeed())
+  {
+  case AM_HAL_PDM_CLK_12MHZ:
+    PDMClk = 12000000;
+    break;
+  case AM_HAL_PDM_CLK_6MHZ:
+    PDMClk = 6000000;
+    break;
+  case AM_HAL_PDM_CLK_3MHZ:
+    PDMClk = 3000000;
+    break;
+  case AM_HAL_PDM_CLK_1_5MHZ:
+    PDMClk = 1500000;
+    break;
+  case AM_HAL_PDM_CLK_750KHZ:
+    PDMClk = 750000;
+    break;
+  case AM_HAL_PDM_CLK_375KHZ:
+    PDMClk = 375000;
+    break;
+  case AM_HAL_PDM_CLK_187KHZ:
+    PDMClk = 187000;
+    break;
+
+  default:
+    PDMClk = 0;
+  }
+
+  //
+  // Record the effective sample frequency. We'll need it later to print the
+  // loudest frequency from the sample.
+  //
+  sampleFreq = (PDMClk / (MClkDiv * 2 * myPDM.getDecimationRate()));
+
+  frequencyUnits = (float)sampleFreq / (float)pdmDataBufferSize;
+
+  Serial.printf("Settings:\n");
+  Serial.printf("PDM Clock (Hz):         %12d\n", PDMClk);
+  Serial.printf("Decimation Rate:        %12d\n", myPDM.getDecimationRate());
+  Serial.printf("Effective Sample Freq.: %12d\n", sampleFreq);
+  Serial.printf("FFT Length:             %12d\n\n", pdmDataBufferSize);
+  Serial.printf("FFT Resolution: %15.3f Hz\n", frequencyUnits);
+}
+                </code>
+            </pre>
         </div>
 
  
