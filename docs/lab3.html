@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>ECE5960 Fast Robots</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        
+        .sidebar{
+            width: 250px!important;
+        }
+        pre code {
+            background-color: #eee;
+            border: 1px solid #999;
+            display: block;
+            padding: 5px;
+            text-align: l;
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fast Robots</sup></div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="index.html">
+                    <i class="fab fa-accessible-icon"></i>
+                    <span>About Me</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-biohazard"></i>
+                    <span>Labs</span>
+                </a>
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="lab1.html">Lab1: The Artemis board</a>
+                        <a class="collapse-item" href="lab2.html">Lab2: Bluetooth Communication</a>
+                        <a class="collapse-item" href="lab3.html">Lab3: TOF and IMU</a>
+                        <a class="collapse-item" href="lab4.html">Lab4: Characterize your car</a>
+                        <a class="collapse-item" href="lab5.html">Lab5</a>
+                        <a class="collapse-item" href="lab6.html">Lab6</a>
+                        <a class="collapse-item" href="lab7.html">Lab7</a>
+                        <a class="collapse-item" href="lab8.html">Lab8</a>
+                        <a class="collapse-item" href="lab9.html">Lab9</a>
+                        <a class="collapse-item" href="lab10.html">Lab10</a>
+                        <a class="collapse-item" href="lab11.html">Lab11</a>
+                        <a class="collapse-item" href="lab12.html">Lab12</a>
+                    </div>
+                </div>
+            </li>
+
+
+        </ul>
+        <!-- End of Sidebar -->
+        <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
+            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
+                <b style="font-size: 26px;">Lab 3 Report</b>
+
+                In this lab, we soldered, connected two TOF sensors and one IMU sensor. All three sensors using the I2C Protocal.
+                
+                <b style="font-size: 24px;">Soldering</b>
+                This part I have chosen a very poor design for my connection. I tried to solder four sets of three parallel connections to one point, and which caused a big hassel to add more points to the already soldered point. Which may need to be redone in the future for better implementation, but for now, it works for three sensors. Results shown in Fig.1.
+                <img src="Labs/lab3/solder.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.1 Soldering Result</span>
+
+                <b style="font-size: 24px;">TOF</b>
+                <b style="font-size: 20px;">Part 1</b>
+                While the board was wired with only one sensor, the address returned back is 0x29, which is a bit surprising that the sensor has a default value. Then for the same sensor, they both have the same address, which would be a problem for later on after connecting both TOF. 
+                
+                When connected to both TOF with the same address, the script would print out every address, 128 of them. It was out of the sctipt's intention to detect more than one address.
+
+                <b style="font-size: 20px;">Part 2</b>
+                For every range, there's a different time limit for the light to travel the round trip. So for short range would limit the processing time to a shorter threshold, thus longer time threshold for longer range detection. 
+
+                For the final robot, I believe we would have an objective of mapping a room. So I think we would need to take into account of the stopping distance of the robot, though I doubt it would exceed 1m. And sampling interval of the robot, which would determine the accuracy of our mapping. I think the sampling rate would determine the upper limit of the range, and the stopping distance would determine the lower limit of the range. Which from my intuition, I think using the shortest range would be a good choice.
+
+                <b style="font-size: 20px;">Part 3</b>
+                
+
+
+
+
+
+
+
+
+
+                <b style="font-size: 20px;">Part 4</b>
+                This part, because of the conflicting address from part 1. I connected a GPIO pin to xshut pin of one of the TOF sensor. I would initiate two sensors, and then pull the xshut high to shut off one of the TOF and set the address of the other to 0x2A. Now that two TOF would have 2 different address, the I2C would have no trouble communicating with both. Demonstration in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/ykmTGUmSGro" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                <b style="font-size: 20px;">Part 5960</b>
+                1. There are Amplitude-Based IR Distance sensor. They transmit a certain infrared signal, and pick up the refelction of Photo diode. Thus they are sensitive to surface color, texture and ambient light. But they are cheacp with csimple circuitry. Works well for object detection, break beam sensors, classifying greyscale intensity at a fixed distance, and short-range distance measuring.
+
+                    Then there's Triangulation-based IR Distance sensors. They read the angle between the transmitter position and the reflection signal. So they are less sensitive to the atibutes of the surface reflecting from. Works with medium range 0.05m - 1m.
+
+                    Last is our TOF sensor. The signal it transmits out is a pulse modulated signal, and calculate the round trip travel time of the signal. Because the signal is pulse modulated, it is mostly insensitive to tesxture color, and ambient light.
+
+                2. We used part 3's example code Example3_StatusAndRate to test out timing budget and measure intervals. From the manual, we learned that timing budget is a time deadline set for the signal to recieve the signal, thus determines the our distance detecting range, the shorter the budget, less the range. But with it set to larger, we would get better reliability on our readings. And the timing inervals is for setting the sampling rate of the sensor. And with playing around with the code. We noticed three things. 1) The default sampling rate is 10 Hz. 2) Sampling period can't be longer than the timing budget, or it will use the default value of 10 Hz. 3) Timing budget can only be set to 15 20 33 50 100 and 500.
+
+                    For the application of this cart robot, I think I would set the budget to around 100 ms for better measurement reliability. The sampling rate would depend on speed of the robot, both linear and angular. For a faster robot we would need faster rate so it can catch the reflecting signal properly. As we are in a Fast Robot class, I think I would set it to 20~50 Hz.
+
+                3. From part 2's reasoning, the robot might move too fast for the TOF sensor to catch the reflecting signal. I tried shaking the sensor and rotating the sensor rapidly, and can see the signal fail half of the time with a sampling frequency of 10 Hz. But while I increase the sampling frequency, failure perceneage start to decrease.
+
+                    For future implementation of the robot, I would add in sigma value detection to see each data point's integrity.
+
+                <b style="font-size: 24px;">IMU</b>
+                <b style="font-size: 20px;">Setup</b>
+                AD0_VAL depends on the connection on the board. If it is connected then it should be 1, if it is cut, then it should be 0. Setup result can be seen in Fig.1. And example script result can be seen in ####Fig..
+                <img src="Labs/lab3/IMUout.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.2 IMU Testing Result</span>
+
+                The accelaration always have a value when in idle. And it is due to gravity in the direction of -Z axis. While the gyroscope wouldn't have a reading if it is in idle, because it detects the angular velocity of the sensor to determine orientation.
+                
+                <b style="font-size: 20px;">Accelerometer</b>
+                1. Using the equations from class, implemented the code below to calculate pitch and roll from acceleration. I used my iphone for angle calibration, shown in #####Fig.. And got readings for Table.1. Used these measurements for a Two Point Calibration and got the sensor calibrated.
+                <img src="Labs/lab3/acc_cal.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.2 Accelerometer Calibration</span>
+                
+                <table style="width:500px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
+                    <tr>
+                      <th>Expected Angle   </th>
+                      <th>Actual Pitch</th>
+                      <th>Actual Roll</th>
+                    </tr>
+                    <tr>
+                      <td>90°</td>
+                      <td>-88.09°</td>
+                      <td>87.99</td>
+                    </tr>
+                    <tr>
+                        <td>0°</td>
+                        <td>-0.5°</td>
+                        <td>-1.53°</td>
+                    </tr>
+                    <tr>
+                        <td>-90°</td>
+                        <td>87.18°</td>
+                        <td>-89.36°</td>
+                    </tr>
+                </table>
+                <span style="margin-left:200px">Table.1 Accelerometer Calibration Measurements</span>
+
+                <pre style="margin-left: 20px;">
+                    <code>
+//   Raw
+SERIAL_PORT.print("Ptich: ");
+printFormattedFloat(180*atan2(sensor->accX(),sensor->accZ())/M_PI, 5, 2);
+SERIAL_PORT.print(", Roll: ");
+printFormattedFloat(180*atan2(sensor->accY(),sensor->accZ())/M_PI, 5, 2);
+//  Two Point Calibration
+SERIAL_PORT.print(", Calibrated Ptich: ");
+printFormattedFloat(((180*atan2(sensor->accX(),sensor->accZ())/M_PI)-87.18)*180/(-88.09-87.18)-90, 5, 2);
+SERIAL_PORT.print(", Calibrated Roll: ");
+printFormattedFloat(((180*atan2(sensor->accY(),sensor->accZ())/M_PI)+89.36)*180/(88.09+89.36)-90, 5, 2);
+SERIAL_PORT.println();
+                    </code>
+                </pre>
+
+
+                <p style="width:610px;font-size: 20px;margin-left: 10px;">2. I recored a constant tap's data along with the time stamp into matlab while constantly rotating the sensor, used a fast Fourier Transform and got the motion frequency. Shown in #####Fig.3.
+                <img src="Labs/lab3/fft_result.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:100px">Fig.3 Pitch Motion Trajectory and Frequency Response</span>
+                    <br><br>
+                From above figure, you can see that the motion frequency is at around 0 Hz, 0.147 Hz and 0.259 Hz. All other are noise since the tapping from hand isn't very periodic. So just to filter out tapping, I would set the cut-off frequency at around 0.3~0.4 Hz, leaving some room for the LPF to decay. So that it would let the motion pass, and block the high frequency tapping so we can get rid of the noise. And from the 3rd subplot, you can see that the motion signla has become much smoother.
+                </p>
+                <pre style="margin-left: 20px;">
+                    <code>
+data = [[ __Data from arduino output__  ]];
+t = data(:,1);
+pitch = data(:,2);
+roll = data(:,3);
+
+pdata = pitch;
+subplot(3,1,1);
+plot(t,pdata)
+title('Pitch Motion Trajectory')
+xlabel('t (s)')
+ylabel('Angle (°)')
+T = 0.04;
+Fs = 1/T;
+L = max(size(t));
+Y = fft(pdata);
+
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+f = Fs*(0:(L/2))/L;
+subplot(3,1,2);
+plot(f,P1) 
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+subplot(3,1,3)
+y = lowpass(pdata,0.3,Fs);
+plot(t,y)
+title('Pitch Motion Trajectory after LPF with cut-off @0.3Hz')
+xlabel('t (s)')
+ylabel('Angle (°)')
+</code>
+</pre>
+                <p style="width:610px;font-size: 20px;margin-left: 10px;">
+                <b style="font-size: 20px;">Gyroscope</b><br>
+                1. Because the way gyroscope calculate angles by measuring the change in angular velocity, it is crucial to set the initial condition well so the gyroscope can track. I think gyroscope's values need to be reset from time to time, the angle it is tracking it's all based on motion. If the sensor gets a sudden movement, or the movement is too slow for it to be accurate, it can loose track of the angles. Thus I don't trust this sensor very much. Well the accelerometer data is constant at idle, the gyroscope readings keeps bounsing around. Although I didn't figure out how to use the myICM.setSampleRate(ICM_20948_Internal_Gyr, 1000) to change the sampling rate. I believe if the sampling rate get much higher, it would produce a better tracking. I adjust the loop delay time for a equivalent effect but lowering the sampling rate, I can see the gyroscope produce worce tracking of the angle. Results shown in Fig.6.
+                <img src="Labs/lab3/gyro_1.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.6 Gyroscope Result</span>
+
+                From above figure, you can see while there is a shift between accelerometer readings and gyroscope's, gyroscope's has less noise. But while time goes on, the shift may be larger and larger.
+<br><br>
+                2. Demonstration in video below.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/UiAMMHeINPo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                Code:
+                <pre style="margin-left: 20px;">
+                    <code>
+pitch_t = (pitch_t + sensor->gyrY()*dt*0.001)*(1-alpha) + (((180*atan2(sensor->accY(),sensor->accZ())/M_PI)+89.36)*180/(88.09+89.36)-90)*alpha;
+roll_t = (roll_t - sensor->gyrX()*dt*0.001)*(1-alpha) + (((180*atan2(sensor->accX(),sensor->accZ())/M_PI)-87.18)*180/(-88.09-87.18)-90)*alpha;
+                      
+</code>
+</pre>
+                </p>
+            </p>
+
+            <p style="width:610px;font-size: 20px;margin-left: 10px;">
+                <b style="font-size: 20px;">5960 Magnetometer to yaw angle</b><br>
+                
+            
+            </p>
+            </p>
+        </div>
+    </div>
+    <!-- End of Page Wrapper -->
+
+
+
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+
+</body>
+
+</html>
