@@ -95,196 +95,36 @@
         <!-- End of Sidebar -->
         <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
             <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
-                <b style="font-size: 26px;">Lab 2 Report</b>
+                <b style="font-size: 26px;">Lab 4 Report</b>
+                In this lab, I partnered with Tongqing Zhang (tz422) and Yingjie Zhao (yz483). And we did measure the speed of the car with TOF sensor.
 
-                In this lab, we configured our local environment to establish a bluetooth connection between our laptop and the Artemis board. And through the tasks, I haved learned how to use the bluetooth operations to communicate between devices, what GGAT characteristics and variables does to notify other devices, and what part uuid plays in overall bluetooth communication.
+                <b style="font-size: 20px;">(A) Dimensions of the car</b>
+                Using a ruler, I measured the car is 18cm long, 14.4cm wide, and 7.9cm high. This measurement can be useful in the futuer to calculate the center of mass, and see if car is able to fit through some space, also can be used to calculate the tranformation matrix on any point of the car, good for TOF and IMU sensors.
+
+                <b style="font-size: 20px;">(A) Weight of the car</b>
+                Using a scale, I measured the car is 550 grams. This can be useful to get the dynamic model of the car in the future. And see the car's inertia.
+
+                <b style="font-size: 20px;">(B) Speed range</b>
+                For this step, we setup a bluetooth monitor to monitor TOF sensor's readings. And we put the board with 1 TOF sensor on the car and tried to captuer readings from the TOF sensor to calculate out the top speed of the car. Demonstarted in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/Z4Yx5I0mu_w" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                And below is the TOF sensor data ploted in rescpect of time in milliseconds.
+
+                <img src="Labs/lab4/motion_capture.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.1 Car Motion Capture</span>
+
+                The first part of the plot is flat is not because car is in idle, but because the wall is out of range of the TOF sensor. Then with the wall in range, a sudden spike in range of readings. And the distance starts to decrease, the steepest part is the top speed of the car. And at the bottom of the decline, is where the car initialed a front flip. The speed from this reading is 3.6714 mm/ms = 13.217 Km/Hr.
+
+                <b style="font-size: 20px;">(B) Stopping distance</b>
+                We can also get the stopping distance from the Fig.1, from the end of top speed to it full rotated. We can see the turn of events pretty obviously. And this is the fastest way to stop at full speed. We didn't manage to find a way to not do a front flip. The stoppint distance is 1154-120 = 1034mm = 1.034m.
                 
-                <b style="font-size: 20px;">Task 1 ECHO</b>
-                This task used the python package "ble" to send command to the artemis board using bluetooth. Using the function send_command(CMD,data), where CMD is the type of function you want the artemis board to perform, and how to recieve the type of data it is used. 
-                At the board side, it's just a simple recieve command and print out the data. Results shown in Fig.1.
-                <img src="Labs/lab2/task1.jpg" alt="drawing" width="630"/>
-                <span style="margin-left:200px">Fig.1 Task 1 results</span>
+                <b style="font-size: 20px;">(B) Stunts</b>
+                The car can do a front flip, Demonstarted in above video when stopping. Just hold front then hold back and the inertia would drive it to a front flip.
 
-                Python code:
-                <pre style="margin-left: 20px;">
-                    <code>
-ble.send_command(CMD.ECHO, "This is a friendly message")
-                    </code>
-                </pre>
-
-                <span style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;"> C code: </span>
-                <pre style="margin-left: 20px;">
-                    <code>
-/*
-* Add a prefix and postfix to the string value extracted from the command string
-*/
-case ECHO:
-
-    char char_arr[MAX_MSG_SIZE];
-
-    // Extract the next value from the command string as a character array
-    success = robot_cmd.get_next_value(char_arr);
-    if (!success)
-        return;
-
-    /*
-    * Your code goes here.
-    */
-    Serial.print("Robot says -> ");
-    Serial.print(char_arr);
-    Serial.println(":)");
-    break;
-                    </code>
-                </pre>
-            </p>
+                The car can also do a side rotate up. Hold one rotate button till car is at full angular speed then let go rotation and start a front or backward hold. And it would start spining itself up. Demonstarted in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/s1zcrImvJYE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
-            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
-                <b style="font-size: 20px;">Task 2 Sned Three Floats</b>
-                This task is similar to task 1, but I have to initiate three float variables and print them out. Results shown in Fig.2.
-                <img src="Labs/lab2/task2.jpg" alt="drawing" width="630"/>
-                <span style="margin-left:200px">Fig.2 Task 2 results</span>
-
-                Python code:
-                <pre style="margin-left: 20px;">
-                    <code>
-ble.send_command(CMD.SEND_THREE_FLOATS, "2.0|-6.1|11.2")
-                    </code>
-                </pre>
-
-                <span style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;"> C code: </span>
-
-                <pre style="margin-left: 20px;">
-                    <code>
-/*
-* Extract three floats from the command string
-*/
-case SEND_THREE_FLOATS:
-    /*
-    * Your code goes here.
-    */
-    float f_a,f_b,f_c;
-
-    // Extract the next value from the command string as an integer
-    success = robot_cmd.get_next_value(f_a);
-    if (!success)
-        return;
-
-    // Extract the next value from the command string as an integer
-    success = robot_cmd.get_next_value(f_b);
-    if (!success)
-        return;
-
-    success = robot_cmd.get_next_value(f_c);
-    if (!success)
-        return;
-
-    Serial.print("Three Floats: ");
-    Serial.print(f_a);
-    Serial.print(", ");
-    Serial.print(f_b);
-    Serial.print(", ");
-    Serial.println(f_c);
-    break;
-                    </code>
-                </pre>
-            </p>
- 
-
-            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
-                <b style="font-size: 20px;">Task 3 Float notification handler</b>
-                This task is to set up a notification on the float GGAT characteristics on the board. Once the float GGAT value changes, board will send back the value imedeately. Results shown in below video.
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/bOGL1LUtcjA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-                Python code:
-                <pre style="margin-left: 20px;">
-                    <code>
-import time,struct
-flt = 0.0
-def note_hdl(uuid_f,flt):
-    print(struct.unpack('f', flt))
-    
-ble.start_notify(ble.uuid['RX_FLOAT'], note_hdl)
-
-ble.stop_notify(ble.uuid['RX_FLOAT'])
-                    </code>
-                </pre>
-            </p>
-
-            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
-                <b style="font-size: 20px;">Task 4 Difference between float recieving methods</b>
-                Recieveing float or string from transmitter is the same, using two different GATT characteristics, which would need two different UUIDs. Though the data type may be different, but it is all sent thought byte array. And here shows the difference between float and string. Float is 4 bytes, and strings every char is 1 byte, thus minumum of sending float as string is 3 bytes. So if the float is very large, such as 321.123, as float it would be 4 bytes, but as string it is 7 bytes. Sending float as string has a high probability that it will be larger. And sending float as string it will take up extra computing power to convert it back to float.
-            </p>
-            
-
-            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
-                <b style="font-size: 20px;">Task 5960 Bluetooth data rate</b>
-                <span style="margin-left: 10px;">1. To test out the data rate, I implemented another bluetooth command "SEND_STRING", which I send a string through python, then after recieving the string, the board returns the exact same string back. Python would record the time span between sending the string and recieving the string. So the data rate would be: 0.5 * string size/time span. I would increase the string size from 10 bytes to 140 bytes, every size would have 6 trail runs to record the average time span. Results shown in Fig.3 and Fig.4</span>
-                
-                <img src="Labs/lab2/task59601.jpg" alt="drawing" width="630" style="margin-left:10px"/>
-                <span style="margin-left:210px">Fig.3 Task 5960 Results</span>
-                
-                <img src="Labs/lab2/task5960.jpg" alt="drawing" width="630" style="margin-left:10px"/>
-                <span style="margin-left:210px">Fig.4 Task 5960 Plot</span>
-
-                <span style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 10px;"> From Fig.4's trend line, you can see that the data rate is around 1.24 byte/ms, there's also a x-intercept, at around 22.384 ms, I believe that's the processing time needed for the laptop and the board to process the recieve and transimission of the data. Below is the code snippet.</span>
-                <span style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 10px;"> Python code: </span>
-                <pre style="margin-left: 30px;">
-                    <code>
-# Task 5960
-import time
-
-def utf8len(s):
-    return len(s.encode('utf-8'))
-
-
-def_str = "1111111111"
-for i in range(1,15):
-    s = def_str*i
-    travel_time = 0
-    for j in range(6):
-        ble.send_command(CMD.SEND_STRING, s)
-        send_time = time.time()
-        s = ble.receive_string(ble.uuid['RX_STRING'])
-        # print(s)
-        recieve_time = time.time()
-        travel_time += recieve_time-send_time
-    print(f"data size is {utf8len(s):{0}{3}} bytes, msg average 
-    round trip time is {travel_time*1000/6:{1}{.5}} ms")
-                    </code>
-                </pre>
-
-                <span style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 30px;"> C code: </span>
-
-                <pre style="margin-left: 30px;">
-                    <code>
-case SEND_STRING:
-
-    char char_arr1[MAX_MSG_SIZE];
-
-    // Extract the next value from the command string as a character array
-    success = robot_cmd.get_next_value(char_arr1);
-    if (!success)
-        return;
-
-    /*
-        * Your code goes here.
-        */
-    tx_estring_value.clear();
-    tx_estring_value.append(char_arr1);
-    tx_characteristic_string.writeValue(tx_estring_value.c_str());
-
-    Serial.print("Sent back: ");
-    Serial.println(tx_estring_value.c_str());
-    break;
-                    </code>
-                </pre>
-
-                <p style="width:610px;font-size: 20px;margin-left: 10px;">2. That's a case we have considered when using my method to measure the data rate. Because reading the message from the board is through GGAT, once requested the data, it will send it back imedeately with top priority. So if the data rate is faster than the processing time of the board, the board wouldn't have read all the bytes from the transmitter and send the data in the buffer back. But thankfully it isn't the case, I have verified that the sent data matches the recieved data. Shown in Fig.5</p>
-                <br>
-                <img src="Labs/lab2/task59602.jpg" alt="drawing" width="630" style="margin-left:10px"/>
-                <br>
-                <span style="margin-left: 210px;">Fig.5 Sent and recieved data verification</p> 
             </p>
     </div>
     <!-- End of Page Wrapper -->
