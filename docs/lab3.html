@@ -111,20 +111,29 @@
                 When connected to both TOF with the same address, the script would print out every address, 128 of them. It was out of the sctipt's intention to detect more than one address.
 
                 <b style="font-size: 20px;">Part 2</b>
-                For every range, there's a different time limit for the light to travel the round trip. So for short range would limit the processing time to a shorter threshold, thus longer time threshold for longer range detection. 
+                For every range, the sensor uses a different wavelength of signal. The shorter the range, shorter the wavelength. And the sensor reads which point of the wavelength it recieved thus calculate out the distance it raveled.
 
                 For the final robot, I believe we would have an objective of mapping a room. So I think we would need to take into account of the stopping distance of the robot, though I doubt it would exceed 1m. And sampling interval of the robot, which would determine the accuracy of our mapping. I think the sampling rate would determine the upper limit of the range, and the stopping distance would determine the lower limit of the range. Which from my intuition, I think using the shortest range would be a good choice.
 
                 <b style="font-size: 20px;">Part 3</b>
                 
+                For this part I set up a ruler on the floor extended to 4.4 meters. And tested the Long range and Short range on three different textures and colors. A wood cardboard, a red plastic, and a tin foil. Setup shown in Fig.2 to Fig.4. And measured results in Table.1.
 
+                <img src="Labs/lab3/cardboard_setup.jpeg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.2 Cardboard setup</span>
 
+                <img src="Labs/lab3/red_setup.jpeg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.3 Red plastic setup</span>
 
+                <img src="Labs/lab3/tin_setup.jpeg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.4 Tin foil setup</span>
 
+                <span style="margin-left:200px">Table.1 Measured results</span>
+                <img src="Labs/lab3/range_table.jpeg" alt="drawing" width="630"/>
+                
+                From the table you can see the short range start to become accurate around 1.8 meters. And long range is always some what close to expected distance, but with a slight constant shift, and only starts to become accurate also around 1.8 meters. And both sensors became inaccurate when lower than 0.3 meters. And you can see there are 0 meter readins in the 2.3 meters range for the short range, meaning the wavelength for the short range is around 2.3/2 = 1.15 meteres, where the signal traved two times the wave length.
 
-
-
-
+                And for diffent textures, you can see the better the reflection, the better the accuracy. But still not very large. Also for different colors, the accuracy didn't suffer very much.
 
                 <b style="font-size: 20px;">Part 4</b>
                 This part, because of the conflicting address from part 1. I connected a GPIO pin to xshut pin of one of the TOF sensor. I would initiate two sensors, and then pull the xshut high to shut off one of the TOF and set the address of the other to 0x2A. Now that two TOF would have 2 different address, the I2C would have no trouble communicating with both. Demonstration in below video.
@@ -147,16 +156,16 @@
 
                 <b style="font-size: 24px;">IMU</b>
                 <b style="font-size: 20px;">Setup</b>
-                AD0_VAL depends on the connection on the board. If it is connected then it should be 1, if it is cut, then it should be 0. Setup result can be seen in Fig.1. And example script result can be seen in ####Fig..
+                AD0_VAL depends on the connection on the board. If it is connected then it should be 1, if it is cut, then it should be 0. Setup result can be seen in Fig.1. And example script result can be seen in Fig.5.
                 <img src="Labs/lab3/IMUout.jpg" alt="drawing" width="630"/>
-                <span style="margin-left:200px">Fig.2 IMU Testing Result</span>
+                <span style="margin-left:200px">Fig.5 IMU Testing Result</span>
 
                 The accelaration always have a value when in idle. And it is due to gravity in the direction of -Z axis. While the gyroscope wouldn't have a reading if it is in idle, because it detects the angular velocity of the sensor to determine orientation.
                 
                 <b style="font-size: 20px;">Accelerometer</b>
                 1. Using the equations from class, implemented the code below to calculate pitch and roll from acceleration. I used my iphone for angle calibration, shown in #####Fig.. And got readings for Table.1. Used these measurements for a Two Point Calibration and got the sensor calibrated.
                 <img src="Labs/lab3/acc_cal.jpg" alt="drawing" width="630"/>
-                <span style="margin-left:200px">Fig.2 Accelerometer Calibration</span>
+                <span style="margin-left:200px">Fig.6 Accelerometer Calibration</span>
                 
                 <table style="width:500px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
                     <tr>
@@ -199,9 +208,9 @@ SERIAL_PORT.println();
                 </pre>
 
 
-                <p style="width:610px;font-size: 20px;margin-left: 10px;">2. I recored a constant tap's data along with the time stamp into matlab while constantly rotating the sensor, used a fast Fourier Transform and got the motion frequency. Shown in #####Fig.3.
+                <p style="width:610px;font-size: 20px;margin-left: 10px;">2. I recored a constant tap's data along with the time stamp into matlab while constantly rotating the sensor, used a fast Fourier Transform and got the motion frequency. Shown in Fig.7.
                 <img src="Labs/lab3/fft_result.jpg" alt="drawing" width="630"/>
-                <span style="margin-left:100px">Fig.3 Pitch Motion Trajectory and Frequency Response</span>
+                <span style="margin-left:100px">Fig.7 Pitch Motion Trajectory and Frequency Response</span>
                     <br><br>
                 From above figure, you can see that the motion frequency is at around 0 Hz, 0.147 Hz and 0.259 Hz. All other are noise since the tapping from hand isn't very periodic. So just to filter out tapping, I would set the cut-off frequency at around 0.3~0.4 Hz, leaving some room for the LPF to decay. So that it would let the motion pass, and block the high frequency tapping so we can get rid of the noise. And from the 3rd subplot, you can see that the motion signla has become much smoother.
                 </p>
@@ -244,9 +253,9 @@ ylabel('Angle (°)')
 </pre>
                 <p style="width:610px;font-size: 20px;margin-left: 10px;">
                 <b style="font-size: 20px;">Gyroscope</b><br>
-                1. Because the way gyroscope calculate angles by measuring the change in angular velocity, it is crucial to set the initial condition well so the gyroscope can track. I think gyroscope's values need to be reset from time to time, the angle it is tracking it's all based on motion. If the sensor gets a sudden movement, or the movement is too slow for it to be accurate, it can loose track of the angles. Thus I don't trust this sensor very much. Well the accelerometer data is constant at idle, the gyroscope readings keeps bounsing around. Although I didn't figure out how to use the myICM.setSampleRate(ICM_20948_Internal_Gyr, 1000) to change the sampling rate. I believe if the sampling rate get much higher, it would produce a better tracking. I adjust the loop delay time for a equivalent effect but lowering the sampling rate, I can see the gyroscope produce worce tracking of the angle. Results shown in Fig.6.
+                1. Because the way gyroscope calculate angles by measuring the change in angular velocity, it is crucial to set the initial condition well so the gyroscope can track. I think gyroscope's values need to be reset from time to time, the angle it is tracking it's all based on motion. If the sensor gets a sudden movement, or the movement is too slow for it to be accurate, it can loose track of the angles. Thus I don't trust this sensor very much. Well the accelerometer data is constant at idle, the gyroscope readings keeps bounsing around. Although I didn't figure out how to use the myICM.setSampleRate(ICM_20948_Internal_Gyr, 1000) to change the sampling rate. I believe if the sampling rate get much higher, it would produce a better tracking. I adjust the loop delay time for a equivalent effect but lowering the sampling rate, I can see the gyroscope produce worce tracking of the angle. Results shown in Fig.8.
                 <img src="Labs/lab3/gyro_1.jpg" alt="drawing" width="630"/>
-                <span style="margin-left:200px">Fig.6 Gyroscope Result</span>
+                <span style="margin-left:200px">Fig.8 Gyroscope Result</span>
 
                 From above figure, you can see while there is a shift between accelerometer readings and gyroscope's, gyroscope's has less noise. But while time goes on, the shift may be larger and larger.
 <br><br>
@@ -266,8 +275,8 @@ roll_t = (roll_t - sensor->gyrX()*dt*0.001)*(1-alpha) + (((180*atan2(sensor->acc
 
             <p style="width:610px;font-size: 20px;margin-left: 10px;">
                 <b style="font-size: 20px;">5960 Magnetometer to yaw angle</b><br>
-                
-            
+                For this part, there's a lot of noise on the sensor, I couldn't get a good reading. But I can see the sensor does respond when moving around the Z axis, and while moving around not in perfect horizontal, the readings still has a trend. Demonstartion in below video.
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/65nHHxSNPRI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </p>
             </p>
         </div>
