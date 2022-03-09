@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>ECE5960 Fast Robots</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        
+        .sidebar{
+            width: 250px!important;
+        }
+        pre code {
+            background-color: #eee;
+            border: 1px solid #999;
+            display: block;
+            padding: 5px;
+            text-align: l;
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fast Robots</sup></div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="index.html">
+                    <i class="fab fa-accessible-icon"></i>
+                    <span>About Me</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-biohazard"></i>
+                    <span>Labs</span>
+                </a>
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="lab1.html">Lab1: The Artemis board</a>
+                        <a class="collapse-item" href="lab2.html">Lab2: Bluetooth Communication</a>
+                        <a class="collapse-item" href="lab3.html">Lab3: TOF and IMU</a>
+                        <a class="collapse-item" href="lab4.html">Lab4: Characterize your car</a>
+                        <a class="collapse-item" href="lab5.html">Lab5: Open Loop Control</a>
+                        <a class="collapse-item" href="lab6.html">Lab6</a>
+                        <a class="collapse-item" href="lab7.html">Lab7</a>
+                        <a class="collapse-item" href="lab8.html">Lab8</a>
+                        <a class="collapse-item" href="lab9.html">Lab9</a>
+                        <a class="collapse-item" href="lab10.html">Lab10</a>
+                        <a class="collapse-item" href="lab11.html">Lab11</a>
+                        <a class="collapse-item" href="lab12.html">Lab12</a>
+                    </div>
+                </div>
+            </li>
+
+
+        </ul>
+        <!-- End of Sidebar -->
+        <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
+            <p style="width:630px;font-size: 20px;white-space: pre-line;margin-left: 20px;">
+                <b style="font-size: 26px;">Lab 5 Report</b>
+                In this lab, obejective is to solder and connect the motor driver to the Artemis board so we can control the car's speed and direction. Also to implement more complex control algorithms. And to add power to the motor driver, we use two channels for each driver so we get enough juice for it to run. Connection diagram shown in Fig.1.
+                <img src="Labs/lab5/diagram.jpeg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.1 Motor Driver Connection Diagram</span>
+                And another objective is to setup the car, to have the two TOF sensors and one IMU sensor fixed on the cart, and make sure it wouldn't fall out while running. Result shown in Fig.2 ~ Fig.4.
+                <img src="Labs/lab5/interior.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.2 Car Interior</span>
+
+                <img src="Labs/lab5/under.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.3 Car Undercaridge</span>
+
+                <img src="Labs/lab5/roof.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.4 Car Roof</span>
+
+                <b style="font-size: 20px;">Porcedure</b>
+                For the procedure, I kind of jumped the steps. I soldered everything and started follow the steps. But everything went well...Thankfully.
+
+                1. The reasonable power supply setting is around 6V.
+
+                2. PWM Step signal shown in Fig.5
+                <img src="Labs/lab5/PWM.jpeg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.5 PWM generated by Artemis</span>
+
+                <b style="font-size: 20px;">Tasks</b>
+                1. I found the left driver moves when PWM settings are at 35/255, and right driver is at around 45/255. But one thing bothers is that the left motor moves and stops sooner than the right motor. Code snippet below.
+                <pre style="margin-left: 20px;">
+                    <code>
+void forward(uint8_t v){
+    analogWrite(LEFT2, 0.74*v);
+    analogWrite(LEFT1, 0);
+    
+    analogWrite(RIGHT2, 0);
+    analogWrite(RIGHT1, v);
+}
+                    </code>
+                </pre>
+
+                <p style="width:610px;font-size: 20px;margin-left: 10px;">
+                2. From below video, you can see that it can move in fairly straight line, I set the Left motor to be 0.74 of the power given to the right motor. Same code as above.
+                </p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/le9uvZ8NzCA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                <p style="width:610px;font-size: 20px;margin-left: 10px;">
+                3. For this part I chained a series of action, demonstarted in video below.
+                </p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/dflZA8Q10Sg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <pre style="margin-left: 20px;">
+                    <code>
+void loop() {
+    // put your main code here, to run repeatedly:
+    forward(150);
+    delay(1000);
+    idle();
+    delay(1000);
+    clockWise(250,250);
+    delay(1000);
+    idle();
+    delay(1000);
+    backward(150);
+    delay(1000);
+    idle();
+    delay(1000);
+    counterClockWise(250,100);
+    delay(1000);
+    idle();
+    delay(1000);
+}
+                    </code>
+                </pre>
+                
+                <b style="font-size: 20px;">Tasks 5960</b>
+                <p style="width:610px;font-size: 20px;margin-left: 10px;">
+                1. The frequency is 590 Hz from the data sheet. I think this is a high enough frequency for the PWM. A benefit to boost it may be to have more accurate control on the motor. So it responds more sharply. But I doubt 590 Hz isn't enough.
+
+                2. For this section, it has a bit of challenge. Because the space is not large enough for the car to ramp up the top speed. If done in a fast pace, it's hard to see the ramp up and down in speed. I chose a time of 2 seconds for the robot to ramp up from 0 to 255. And the TOF is not fast enough to get a more detailed data points. My best result shown in Fig.6. The top Speed is at around 2.22 m/s.
+                <img src="Labs/lab5/speed.jpg" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.6 Ramp Up Speed diagram</span>
+
+                Here I generated a steady ramp up speed, ranging the power sent to the PWM duty cycle from 0 to 255 and 255 to 0 in velocity_interval, where it is 2 second. And the benefit of using millis() as the variable is that it is invariant to  TOF sensor reading delay, so the rate can always be inrespect to time instead of CPU cycle.
+                </p>
+
+                <pre style="margin-left: 20px;">
+                    <code>
+t = (millis()%(velocity_interval*1000*2))/1000.0;
+if (t < velocity_interval){
+    speedd = 255/velocity_interval*t;
+}
+else{
+    speedd = -255/velocity_interval*t+510;
+}
+forward(speedd);
+                    </code>
+                </pre>
+    </div>
+    <!-- End of Page Wrapper -->
+
+
+
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+
+</body>
+
+</html>
