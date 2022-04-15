@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>ECE5960 Fast Robots</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        
+        .sidebar{
+            width: 250px!important;
+        }
+        pre code {
+            background-color: #eee;
+            border: 1px solid #999;
+            display: block;
+            padding: 5px;
+            text-align: l;
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fast Robots</sup></div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="index.html">
+                    <i class="fab fa-accessible-icon"></i>
+                    <span>About Me</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-biohazard"></i>
+                    <span>Labs</span>
+                </a>
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="lab1.html">Lab1: The Artemis board</a>
+                        <a class="collapse-item" href="lab2.html">Lab2: Bluetooth Communication</a>
+                        <a class="collapse-item" href="lab3.html">Lab3: TOF and IMU</a>
+                        <a class="collapse-item" href="lab4.html">Lab4: Characterize your car</a>
+                        <a class="collapse-item" href="lab5.html">Lab5: Open Loop Control</a>
+                        <a class="collapse-item" href="lab6.html">Lab6: Closed-loop control (PID)</a>
+                        <a class="collapse-item" href="lab7.html">Lab7: Kalman Filters</a>
+                        <a class="collapse-item" href="lab8.html">Lab8: Stunts</a>
+                        <a class="collapse-item" href="lab9.html">Lab9: Mapping (real)</a>
+                        <a class="collapse-item" href="lab10.html">Lab10: Simulator</a>
+                        <a class="collapse-item" href="lab11.html">Lab11</a>
+                        <a class="collapse-item" href="lab12.html">Lab12</a>
+                    </div>
+                </div>
+            </li>
+
+
+        </ul>
+        <!-- End of Sidebar -->
+        <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 26px;">Lab 6 Report</b><br>
+                For this lab, we tried to map out a test space using the robot spinning in spot and record each rotation along with TOF reading,
+                so we could get a polar coordinate map of the suroundings.<br>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 26px;">PID Control</b><br>
+                I used PID control on angle to rotate the robot. Though I didn't fully trust it to stop every 10 degrees, I do trust its readings.
+                From Fig.1, you can see the robot rotates 360 degrees very consitantly.
+
+                <img src="Labs/lab9/5trails.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.1 Five 360 degree trails</span><br>
+
+                I modified it from lab6's PID code, just swapping readings from TOF to the gyroscope's accumulation, and switching going straight
+                to rotating. From below video, you can see that the robot isn't exactly rotating along the main axis, I thought I can ignore the
+                deviation, but turns out in the result, it isn't that good. Code attached below.<br>
+                <iframe width="473" height="841" src="https://www.youtube.com/embed/3jnROZLO65g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </p>
+
+           
+            <pre style="margin-left: 20px;">
+                <code>
+while(current_degree < 360){
+    z_gyro = 0;
+    
+    prev_t = millis();
+    local_start = millis();
+    while (millis() - local_start < time_lim * 1000)
+    {
+        if (myICM.dataReady())
+        {
+            myICM.getAGMT(); // The values are only updated when you call 'getAGMT'
+            z_gyro = z_gyro + myICM.gyrZ() * dt * 0.001;
+            dt = millis() - prev_t;
+            prev_t += dt;
+        }
+        err = z_gyro - dest;
+
+        I_accum += dt * I_accum * err;
+
+        pid_dc = P * err + I * I_accum + D * (err - prev_err) / dt;
+        prev_err = err;
+
+        if (pid_dc > 0)
+        {
+            if (pid_dc < 30)
+                pid_dc = 0;
+            else if (pid_dc > DC_MAX)
+                pid_dc = DC_MAX;
+            else if (pid_dc < DEAD_BAND)
+                pid_dc = DEAD_BAND;
+            counterClockWise(pid_dc,0.7*pid_dc);
+        }
+        else
+        {
+            pid_dc = -pid_dc;
+            if (pid_dc < 30)
+                pid_dc = 0;
+            else if (pid_dc > DC_MAX)
+                pid_dc = DC_MAX;
+            else if (pid_dc < DEAD_BAND)
+                pid_dc = DEAD_BAND;
+            clockWise(pid_dc,0.7*pid_dc);
+        }
+    }
+    current_degree += z_gyro;
+    data_L9[data_i_L9][0] = current_degree;
+    data_L9[data_i_L9][1] = get_tof();
+    data_i_L9 += 1;
+    }
+                </code>
+            </pre>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 26px;">Results</b><br>
+                Because I setup the IMU exactly the same position as the robot's rotation center, 
+                so I don't need a transformation matrix for that, if ignoring the small margin of errors.<br>
+
+                Though the TOF sensor isn't in the same frame as the rotation center, as Fig.2 shows, 
+                it is off by x-axis of 78mm and y axis by 10mm. Taking that into account for each refference frame. 
+                I calculated the x y coordinates from the polar coordinates. And got the not so good map scanning of
+                Fig.3. The one reason for the bad scan I think is the not so accurate rotation in place. 
+                Another thing is that I think the TOF might not be in the best shape, I think its range has been 
+                limited so that it couldn't get enough range readings, that's why everything is around in about the same distance.
+                Even though I haven't changed the range setting to short. And I've attached my excel sheet below.<br><br>
+
+
+
+                <img src="Labs/lab9/transf.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.2 Transformation frame illustration</span><br>
+
+                
+                <img src="Labs/lab9/LabScan.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.3 Not so good map scan</span><br>
+                
+                
+                Attached the data sheet below<br>
+                <a href="Labs/lab9/lab9_data.xlsx">Lab9 Data</a>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 26px;">Line-Based Map</b><br>
+               For this part, I don't think I got a good enough scan to transfer it to a line based map.
+            </p>
+    </div>
+    <!-- End of Page Wrapper -->
+
+
+
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+
+</body>
+
+</html>
