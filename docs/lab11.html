@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>ECE5960 Fast Robots</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        
+        .sidebar{
+            width: 250px!important;
+        }
+        pre code {
+            background-color: #eee;
+            border: 1px solid #999;
+            display: block;
+            padding: 5px;
+            text-align: l;
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fast Robots</sup></div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="index.html">
+                    <i class="fab fa-accessible-icon"></i>
+                    <span>About Me</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-biohazard"></i>
+                    <span>Labs</span>
+                </a>
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="lab1.html">Lab1: The Artemis board</a>
+                        <a class="collapse-item" href="lab2.html">Lab2: Bluetooth Communication</a>
+                        <a class="collapse-item" href="lab3.html">Lab3: TOF and IMU</a>
+                        <a class="collapse-item" href="lab4.html">Lab4: Characterize your car</a>
+                        <a class="collapse-item" href="lab5.html">Lab5: Open Loop Control</a>
+                        <a class="collapse-item" href="lab6.html">Lab6: Closed-loop control (PID)</a>
+                        <a class="collapse-item" href="lab7.html">Lab7: Kalman Filters</a>
+                        <a class="collapse-item" href="lab8.html">Lab8: Stunts</a>
+                        <a class="collapse-item" href="lab9.html">Lab9: Mapping (real)</a>
+                        <a class="collapse-item" href="lab10.html">Lab10: Simulator</a>
+                        <a class="collapse-item" href="lab11.html">Lab11: Localization (Sim)</a>
+                        <a class="collapse-item" href="lab12.html">Lab12</a>
+                    </div>
+                </div>
+            </li>
+
+
+        </ul>
+        <!-- End of Sidebar -->
+        <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 26px;">Lab 11 Report</b><br>
+                For this lab, we are to implement Bayes filter in a simulation for a robot cart. It's purpose is
+                to return better sensor readings on a probability model.<br>
+                Thanks to professor and course staff for providing the robot model and each function signature
+                of the Bayes filter so we had a straight forward task of realizing Bayes filter. Our task is to 
+                implement five functions and in below order, later functions are helped by previous functions.<br>
+                compute_control(cur_pose, prev_pose)<br>
+                odom_motion_model(cur_pose, prev_pose, u)<br>
+                prediction_step(cur_odom, prev_odom)<br>
+                sensor_model(obs)<br>
+                update_step()<br>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">compute_control(cur_pose, prev_pose)</b><br>
+                Compute control is to compute the translation and rotation before the translation,
+                and the rotation after the translation, given the current pose and the 
+                previous pose of the robot. Pose contains robot's x y cordinate in meters, and 
+                orientation in degrees. Theory shown in Fig.1 and code shown in Fig.2<br>
+                <img src="Labs/lab11/compute_control_theory.jpg" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.1 Conpute Control Theory</span><br>
+                <img src="Labs/lab11/compute_control_code.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.2 Conpute Control Code</span><br>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">odom_motion_model(cur_pose, prev_pose, u)</b><br>
+                Odom motion model is to compute the probability of the current pose given the 
+                current control and previous pose. We uses a gaussian distribution for computing 
+                the prbobality. And to note because our state space for orientation is -180° to 180° 
+                we need to normalize the angles.
+                <img src="Labs/lab11/odom_model_theory.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.3 Odometer Motion Model Theory</span><br>
+                <img src="Labs/lab11/odom_model_code.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.4 Odometer Motion Model Code</span><br>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">prediction_step(cur_odom, prev_odom)</b><br>
+                Now we get to the first step of Bayes Filter, the prediction step as in Fig.5. After getting 
+                the control form previous and current poses, we can use odometer motion model to 
+                predict the probability of arraving at a certain state. We do that by iterating through 
+                every state in the state space and calculate out all the probability. We call this probability 
+                map bel and the previous step bel_bar a belief. And to reduce the computing cost, if current belief 
+                bel is smaller than 0.001, we skip the calculation. And also because we skipped some calculation, 
+                and the probability sum needs to be 1, we normalized the whole table with bel_bar/sum(bel_bar).<br>
+                <img src="Labs/lab11/bayes_filter.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.5 Bayes Filter</span><br>
+                <img src="Labs/lab11/prediction_step_code.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.6 Prediction Step Code</span><br>
+            </p>
+              
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">sensor_model(obs)</b><br>
+                This function is to provide the probability of a TOF sensors reading in one rotation given its x-y coordinates,
+                 in other words, how much we trust a sensor's reading at one spot after doing one full rotation with 
+                18 TOF readings. We uses the gaussian distribution again.<br>
+                <img src="Labs/lab11/sensor_model_code.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.7 Sensor Model Code</span><br>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">update_step()</b><br>
+                Finally we arrive at the update step of Bayes Filter shown in Fig.5. We update our current belief 
+                of the probability state map given the sensor model and the prior belief bel_bar. Iterating through 
+                every state again to update the map. Here we normalize the map again in case there are rounding 
+                erros in the sensor model.<br>
+                <img src="Labs/lab11/update_step.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.8 Update Step Code</span><br>
+            </p>
+            
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">Discussion</b><br>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/1-8iKAQoJok" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
+                Results are shown in above video. You can see that we now have a more accurate reading with Bayes filter's prediction (blue trajectory), 
+                comparing to odometer readings (red trajectory). Though we didn't always have the best belief, you can see from the checker grid, and 
+                also comparing the results with ground truth (green trajectory). This is because we have to discretize our state space. Our state space 
+                isn't tight enough to give a more accurate prediction, but it is wide enough to have a good computing speed. I think this state space can 
+                be more tightly discretized for simulation, but can't say for sure it is not good enough for the on board experiment on the real robot.
+            </p>
+    </div>
+    <!-- End of Page Wrapper -->
+
+
+
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+
+</body>
+
+</html>
