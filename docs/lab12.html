@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>ECE5960 Fast Robots</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        
+        .sidebar{
+            width: 250px!important;
+        }
+        pre code {
+            background-color: #eee;
+            border: 1px solid #999;
+            display: block;
+            padding: 5px;
+            text-align: l;
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fast Robots</sup></div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="index.html">
+                    <i class="fab fa-accessible-icon"></i>
+                    <span>About Me</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-biohazard"></i>
+                    <span>Labs</span>
+                </a>
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="lab1.html">Lab1: The Artemis board</a>
+                        <a class="collapse-item" href="lab2.html">Lab2: Bluetooth Communication</a>
+                        <a class="collapse-item" href="lab3.html">Lab3: TOF and IMU</a>
+                        <a class="collapse-item" href="lab4.html">Lab4: Characterize your car</a>
+                        <a class="collapse-item" href="lab5.html">Lab5: Open Loop Control</a>
+                        <a class="collapse-item" href="lab6.html">Lab6: Closed-loop control (PID)</a>
+                        <a class="collapse-item" href="lab7.html">Lab7: Kalman Filters</a>
+                        <a class="collapse-item" href="lab8.html">Lab8: Stunts</a>
+                        <a class="collapse-item" href="lab9.html">Lab9: Mapping (real)</a>
+                        <a class="collapse-item" href="lab10.html">Lab10: Simulator</a>
+                        <a class="collapse-item" href="lab11.html">Lab11: Localization (Sim)</a>
+                        <a class="collapse-item" href="lab12.html">Lab12: Localization (Real)</a>
+                    </div>
+                </div>
+            </li>
+
+
+        </ul>
+        <!-- End of Sidebar -->
+        <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 26px;">Lab 12 Report</b><br>
+                For this lab, we are to perform Bayes Filter's localization on four locations, to see how good 
+                the calculated belife of each location is. And thanks again to the course staff for writing most 
+                of the real robot code. We just need to implement the observation loop function which uses the 
+                real robot.<br>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">Task 1</b><br>
+                This task is just to see that the given Bayes Filter implementation is correct. See Fig.1 for result.<br>
+                <img src="Labs/lab12/sim_result.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.1 Simulation Result with Provided Bayes Filter implementation</span><br>
+            </p>
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">perform_observation_loop()</b><br>
+                This function asks the robot to perform a 360 degree rotation at the same spot, and record 18 TOF readings 
+                at 18 different angles. And return the data as two column np arrays.<br>
+                I used the code from Lab 9. But with some modifications. What I did in Lab 9 is seperated reading data and 
+                retive data as two robot commands. But now it needs to be in the same function. There is a problem when to 
+                send the data, and keep the Bluetooth connection while the robot is performing the loop. 
+                I tried to implement the functionality by sending a command back telling the laptop robot has done performing the 
+                loop. But that didn't work very consistantly, I just asked the laptop to wait for 30 seconds before trying to parse 
+                the data. And to solve the connection issue, I asked the robot to send back data at every rotation step, 
+                i.e every 20 degrees of rotation. Video and code is attached below: 
+                <iframe width="437" height="777" src="https://www.youtube.com/embed/AIAyIjIN-iQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <pre style="margin-left:20px">
+                <code>
+def perform_observation_loop(self, rot_vel=120):
+    stri = []
+    def data_hdl(uuid,strii):
+        stri.append(ble.bytearray_to_string(strii))
+    ble.start_notify(ble.uuid['LAB4_STR'], data_hdl)
+
+    P = 5
+    I = 0
+    D = 100
+    DC_MAX = 250
+    time_lim = 1
+    dest = 25
+    dead_band = 250
+    turn_degree = 30
+    ble.send_command(CMD.LAB12,str(P)+"|"+str(I)+"|"+str(D)+"|"+str(DC_MAX)+"|"+str(time_lim)+"|"+str(dest)+"|"+str(dead_band)+"|"+str(turn_degree))
+
+
+    time.sleep(20)
+    ble.stop_notify(ble.uuid['LAB4_STR'])
+    result = []
+    for s in stri:
+        result.append(s.split(','))
+    result = np.array(result).astype(np.float64)
+    print(result)
+
+    sensor_ranges = np.array([result[:,1]]).T/1000
+    sensor_bearings = np.array([result[:,0]]).T
+    return sensor_ranges, sensor_bearings
+                </code>
+                </pre>
+
+            </p>
+            
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">Localization Results</b><br>
+                Below, Fig.2 to Fig.9 are the belifes at each location in [(-3,-2), (0,3), (5,-3), (5,3)],w/o grid and  with grid.
+                In the with grid version, the big red dot is the ground truth coordinates.
+                <img src="Labs/lab12/results/(-3-2).png" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.2 (-3,-2) w/o grid</span><br>
+                <img src="Labs/lab12/results/(-3-2)grid.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.3 (-3,-2) with grid</span><br>
+
+                <img src="Labs/lab12/results/(03).png" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.4 (0,3) w/o grid</span><br>
+                <img src="Labs/lab12/results/(03)grid.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.5 (0,3) with grid</span><br>
+
+                <img src="Labs/lab12/results/(5-3).png" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.6 (5,-3) w/o grid</span><br>
+                <img src="Labs/lab12/results/(5-3)grid.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.7 (5,-3) with grid</span><br>
+
+                <img src="Labs/lab12/results/(53).png" alt="drawing" width="630"/>
+                <span style="margin-left:200px">Fig.8 (5,3) w/o grid</span><br>
+                <img src="Labs/lab12/results/(53)grid.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.9 (5,3) with grid</span><br>
+            </p>
+
+              
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">Result Discussion</b><br>
+                You can see from the screen shots, I don't have the most accurate result. 
+                I think it is partly due to my robot isn't rotationing exactly in one spot. 
+                And also the TOF isn't too accurate. Though with multiple trails, I think one trail 
+                can yield accurate result. But still, it needs mutiple trails. At (-3,-2) I had 
+                the best results because it's the closest spot I can get multiple trails in, the lab is pretty busy. And for 
+                (0,3) no matter how many trails I've done, it yields poor results. I think it's due to that 
+                the surroundsing is synmatric to the observer.<br>
+            </p>
+    </div>
+    <!-- End of Page Wrapper -->
+
+
+
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+
+</body>
+
+</html>
