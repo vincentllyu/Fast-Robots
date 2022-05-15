@@ -103,7 +103,7 @@
                 places are too far for the TOF to pick up the readings, so I cut those long paths to two, going backward using the 
                 back wall as PID refference, then turn 180 degrees and uses the front wall as the 2nd part's refference. Though it 
                 needed some correction in the process, it is mostly proof of concept that method works if equiped with a better IMU, 
-                the TOF guided PID works very well. Detailed PID refference distance or degree shown in Fig.1.
+                the TOF guided PID works very well. Detailed PID refference distance or degree shown in Fig.1.<br><br>
 
                 The Dark blue arrows is the direction the robot facing at each point. The green segmentation is the distance PID will 
                 be refferencing to the pointed wall.<br>
@@ -111,6 +111,38 @@
                 <img src="Labs/lab13/trajectory_spec.jpg" alt="drawing" width="630"/><br>
                 <span style="margin-left:200px">Fig.1 Trajectory Specification</span><br>
                 
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">Methology</b><br>
+                So I wrote two commands that let the robot goforward and rotate with PID, most of the code is from past labs, 
+                and I tune the distance and angle for PID as shown in Fig.1, then I ran these commands in series in one command block. 
+                Code shown below.
+
+                <pre style="margin-left:20px">
+                    <code>
+sleep_time = 5
+P = 0.1
+I = 0.01
+D = 10
+DC_MAX = 200
+time_lim = sleep_time
+dest = 1150
+ble.send_command(CMD.PID_STOP,str(P)+"|"+str(I)+"|"+str(D)+"|"+str(DC_MAX)+"|"+str(time_lim)+"|"+str(dest))
+
+time.sleep(sleep_time + 0.5)
+sleep_time = 3
+
+P = 2
+I = 0
+D = 100
+DC_MAX = 250
+time_lim = sleep_time
+dest = -48
+dead_band = 250
+ble.send_command(CMD.PID_TURN,str(P)+"|"+str(I)+"|"+str(D)+"|"+str(DC_MAX)+"|"+str(time_lim)+"|"+str(dest)+"|"+str(dead_band))
+                    </code>
+                    </pre>
             </p>
 
             <p style="width:630px;font-size: 20px;margin-left: 20px;">
