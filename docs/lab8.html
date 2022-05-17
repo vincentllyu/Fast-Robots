@@ -122,7 +122,11 @@
                 From the Fig.1 you can see that at time stamp 256348, robot started to reverse and the duty cycle 
                 of the motor changed from 255 to -255 very fast. At time stamp 256847 is the lowest TOF reading, that's 
                 when robot is upside down. And started reversing back very fast. But just like in lab 4, the TOF is 
-                out of range so it reads a smaller number which is inaccrurate as it is speeding off to the distance.
+                out of range so it reads a smaller number which is inaccrurate as it is speeding off to the distance.<br>
+
+                I didn't use kalman filter because I see that there isn't too much difference from PID in lab7, and 
+                the PID command allows me more freedom on adjusting the parameters w/o changing too many variables, 
+                so I chose to use PID instead of Kalman out of a bit of lazyness.
             </p>
 
             <p style="width:630px;font-size: 20px;margin-left: 20px;">

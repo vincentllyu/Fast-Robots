@@ -96,156 +96,72 @@
         <!-- End of Sidebar -->
         <div class="about pics" style="margin-left: 100px;margin-top: 30px;">
             <p style="width:630px;font-size: 20px;margin-left: 20px;">
-                <b style="font-size: 26px;">Lab 6 Report</b><br>
-                For this lab, we piggy backed on lab 4 and 5 to finish the prelab for a degbugging tool. 
-                And also implemented a PID controller for the robot to stop 30 cm in front of a wall.
+                <b style="font-size: 26px;">Lab 7 Report</b><br>
+                For this lab, I try to implement the Kalman Filter on the robot for faster and 
+                more accurate PID control. To apply Kalman Filter, I first acquired the linear 
+                model of the robot. Then I tested Kalman Filter's update on lab 6's data. And 
+                last I applied it on the robot and see the effects.<br>
             </p>
 
             <p style="width:630px;font-size: 20px;margin-left: 20px;">
-                <b style="font-size: 20px;">Pre Lab</b><br>
-                For this part, I actually used the old code from Lab4 while we were trying to get the speed of the robot. 
-                But I made it more tidy and put it under a case. 
-                And this time I setup an array to collect. And a method to alter the GGAT characteristics through out the array. 
-                So at the python side using notify, it will update all the data at once. I was trying to write all data into an array of
-                strings. Inspired by Tongqing, I just store all the int data in an array and later update the string characteristic accordingly,
-                I think that svaed me some processing power. Code used below.
-            </p>
-            <pre style="margin-left: 20px;">
-                <code>
-case GET_PID_DATA:
-for(int i = 0; i < data_i; i++){
-    tx_estring_value.clear();
-    tx_estring_value.append("[");
-    tx_estring_value.append(data_PID[i][0]);
-    tx_estring_value.append(",");
-    tx_estring_value.append(data_PID[i][1]);
-    tx_estring_value.append(",");
-    tx_estring_value.append(data_PID[i][2]);
-    tx_estring_value.append("]");
-    tx_characteristic_string.writeValue(tx_estring_value.c_str());
-}
-                </code>
-            </pre>
-
-            <pre style="margin-left: 20px;">
-                <code>
-stri = []
-def data_hdl(uuid,strii):
-    stri.append(ble.bytearray_to_string(strii))
-    print(stri[-1])
-    
-ble.start_notify(ble.uuid['LAB_STR'], data_hdl)
-ble.send_command(CMD.GET_PID_DATA,"")
-                </code>
-            </pre>
-
-            <p style="width:630px;font-size: 20px;margin-left: 20px;">
-                <b style="font-size: 20px;">Controller implementation (PID)</b><br>
-                For this part, I implemented the whole controller in a command casem which seems like the easieast way.
-                 And I had to intialize a bunch of variables to track all the data needed for the PID, which is a bit
-                 untidy, but the resulting contoller is working. For the controller, I set the active band of dutycycle
-                 from 45 to 150. Over 150 will be lowered to 150, and lower than 45 would be 45, I didn't include a 0 control.
-                 So the robot will always try to adjust itself near 300mm set point. 45 is the lowest duty cycle for my robot's motor
-                 to drive, and 150 is a reasonable power ceiling for my robot not to crash into the wall too hard. Code in below.
-                 And I can set the values of P, I, D, Max duty cycle, running time and set point distance from the command.
-            </p>
-            <pre style="margin-left: 20px;">
-                <code>
-while (millis() - local_start < time_lim*1000){
-
-    dt = millis() - prev_t;
-    prev_t += dt;
-    x = get_tof();
-    err = x - dest;
-
-    I_accum += dt*I_accum*err;
-    
-    pid_dc = P*err + I*I_accum + D*(err-prev_err)/dt;
-    prev_err = err;
-    
-    data_PID[data_i][0] = (int)millis();
-    data_PID[data_i][1] = x;
-    
-    
-    
-    if (pid_dc > 0) {
-        if (pid_dc > DC_MAX) pid_dc = DC_MAX;
-        else if (pid_dc < DEAD_BAND) pid_dc = DEAD_BAND;
-        data_PID[data_i][2] = pid_dc;
-        forward(pid_dc);
-    }
-    else{
-        pid_dc = -pid_dc;
-        if (pid_dc > DC_MAX) pid_dc = DC_MAX;
-        else if (pid_dc < DEAD_BAND) pid_dc = DEAD_BAND;
-        data_PID[data_i][2] = -pid_dc;
-        backward(pid_dc);
-    }
-    data_i += 1;
-    }
-    idle();
-                </code>
-            </pre>
-
-            <pre style="margin-left: 20px;">
-                <code>
-P = 0.1
-I = 0.01
-D = 50
-DC_MAX = 150
-time_lim = 5
-dest = 300
-ble.send_command(CMD.PID,str(P)+"|"+str(I)+"|"+str(D)+"|"+str(DC_MAX)+"|"+str(time_lim)+"|"+str(dest))
-                </code>
-            </pre>
-            
-            <p style="width:630px;font-size: 20px;margin-left: 20px;">
-                <b style="font-size: 20px;">Result</b><br>
-                I have tested the PID several times to adjust the PID value for the better result. Seen in below three videos.<br>
-                <iframe width="409" height="726" src="https://www.youtube.com/embed/RBBWtBbRUoA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <iframe width="409" height="726" src="https://www.youtube.com/embed/EOM1WSbjtgo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <iframe width="409" height="726" src="https://www.youtube.com/embed/Be1_w-hay-A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <br><br>
-                And I have recorded the data from the last two videos, shown in Fig.1 and Fig.2.<br>
-
-                <img src="Labs/lab6/bump_data.jpg" alt="drawing" width="630"/><br>
-                <span style="margin-left:200px">Fig.1 Just about right data</span><br>
-                <br>
-                <img src="Labs/lab6/slow_data.jpg" alt="drawing" width="630"/><br>
-                <span style="margin-left:200px">Fig.2 Slow data</span><br>
-            </p>
-
-            <p style="width:630px;font-size: 20px;margin-left: 20px;">
-                <b style="font-size: 20px;">Discussion</b><br>
-                In above PID code, I tried to do just he controls, because of the TOF ranging frequency. 
-                The best I got is still around 100 ms for the sampling rate. But it is good enough for the robot to
-                do a sudden stop reverse, and try to stay at 300mm set point. And I found my dead band duty cycle to be lower
-                than 45/255. Though one thing need to be careful is the units and converting the PID output to a good scale
-                for duty cycle. Because the error is in the hundreds, so for example you need to set K_P to around the hundredth to tenth to
-                have a reasonable dutycycle output.
-                <br>
-                <br>
-                For the integrator, I do need to worry about the windup. I've set my K_I to relatively small and because the test is around 5 to 
-                10 seconds, so the windup isn't too large, but some times I can see it overcoming the negative part in tests and keeps going forward
-                while it is already in range of the setpoint when I set it above 1.
-                <br>
-                <br>
-                For the derivative, because I am only using only one past point, and the noise in TOF, the derivative noise
-                can be quite noticeable. And adding a lowpass filter may help with the problem though I didn't seem to notice the effect
-                on my robot, from Fig1 and 2. Also you can see there isn't a kick when switching dutycycle directions. I think
-                it's the proportional component overpowered the derivative component in my system. But adding the derivative
-                component do helped my robot to reverse faster when it overshot the setpoint.
-                <br>
-                <br>
-                I think adding the 0 control when the error is near the setpoint can help with the final twitching of the robot.
-                The threshold should be around 3 to 5 from what I see my robot's behavior.
-                <br>
-                <br>
-                After setting the TOF integration time, I do see the robot reacts more quickly, but also increases the final twitching
-                when near the setpoint. I think using a value around 8 is good enough of tradeoff for accuracy.
+                <b style="font-size: 20px;">Robot Linear Model</b><br>
+                For this part, we need to acquire the A B C matrix of its state space representaion, 
+                by using a set duty cycle on the motor and the top speed it achieved to calculate 
+                'd' and 'm' in the below formula. <br>
+                A = [[0, 1],<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0, -d/m]]<br>
                 
+                B = [[0],<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1/m]]<br>
 
+                C = [1,0]<br>
+
+                I set the robot's max duty cycle to 60, and robot motion result shown in Fig.1.<br>
+                <img src="Labs/lab7/steady_state_result.jpg" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.1 Steady State</span><br>
+
+                I plugged the reuslts in excel and calculated it achieved a top speed of 1.20388 m/s. 
+                Thus, d = max_duty_cycle / max_speed = 60/1203.88 = 0.04983.<br>
+
+                For 'm', we need to find a data point that is not at max speed. I chose a point that is 
+                at around 90% of its max speed with 1.07619 m/s at time stamp 4001735, m = -d * t / ln(1 - 1.07619/1.20388) = 0.09636512.<br>
+
+                Here is the data sheet I used to calculate the <a href="Labs/lab7/linear_model.xlsx">linear model</a>.<br>
             </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">Kalman Filter Simulation</b><br>
+                After gaining the linear model, I try it out in python with data from lab 6. 
+                Fig.2 is the code I used. And Fig.3 is the result of Kalman filter's prediction.<br>
+
+                <img src="Labs/lab7/python_kf_code.jpg" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.2 Python Code</span><br>
+
+                <img src="Labs/lab7/python_kalman_result.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.3 Python Result</span><br><br>
+
+                From Fig.3, you can see that Kalman filter has a good prediction. I used a pretty large sigma for 
+                both control and readings, 40 and 20 respectively. Seems like I didn't have a very good calculation on 'd' and 'm'.<br>
+            </p>
+
+            <p style="width:630px;font-size: 20px;margin-left: 20px;">
+                <b style="font-size: 20px;">Kalman Filter Robot Implementation</b><br>
+                Now I implemented the Kalman filter onto the robot, and I just translated the python code 
+                to C++ code on the Arduino IDE. See below video and Fig.4 for results.<br>
+
+                <img src="Labs/lab7/kalman_result.png" alt="drawing" width="630"/><br>
+                <span style="margin-left:200px">Fig.4 Python Code</span><br>
+
+                <iframe width="473" height="841" src="https://www.youtube.com/embed/rc3qnogU1BI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
+
+
+                From Fig.4 you can see that there are less jiggle on the robot because now that the robot is updating its states 
+                faster than before. Kalman updates the robot w/o the knowladge of TOF readings, thus it can make decisions much 
+                faster. Though because my sigmas are quite large, thus the prediction may not be that accurate. Though, I didn't 
+                see too much difference from a well tuned PID control, I think if we would have uitilization on faster tasks, then 
+                the advantage of the Kalman filter would show.
+            </p>
+            
     </div>
     <!-- End of Page Wrapper -->
 
